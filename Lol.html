@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<style type="text/css">
+    h1{
+    color: white;
+    }
+    body{
+    background-color: #212121;
+    }
+    .test{
+    	color: #BDBDBD;
+    }
+    #colSide{
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        width: 200px;
+        height:75px;
+        background-color: #212121;
+        border:3px solid white;
+    }
+    #color{
+        float: left;
+        background-color:none;
+        padding:0;
+        margin:0;
+        border:none;
+        width:100%;
+        height:25px;
+    }
+    #hex{
+        text-align: center;
+        color: white;
+        line-height: 50px;
+        vertical-align: middle;
+        width: 100%;
+        font-size: 30px;
+        float: left;
+    }
+    </style>
+
+</head>
+<body>
+
+	<h1 class="test">
+    	All Possible Colors 16, 777, 216
+	</h1>
+	  <canvas id="image" height="2048px" width="8192px"></canvas>
+      <div id="colSide">
+          <div id="color" type="color"></div>
+          <div id="hex">#FF00A1</div>
+      </div>
+<script>
+window.onload=()=>{
+ let worker = new Worker("worker.js");
+ var canvas=document.getElementById("image");
+    let ctx=canvas.getContext("2d");
+    var imgData=ctx.getImageData(0,0,canvas.width,canvas.height)
+    worker.postMessage(imgData);
+    worker.onmessage = function(event){
+    console.log("Data recieved"+event.data);
+    ctx.putImageData(event.data,0,0);
+    worker.terminate();
+    }
+};
+    function toHex(c){
+      if(c>0){
+      var hex=c.toString(16);
+      return hex.length ==1 ? "0" +hex:hex;
+      }else{
+        return 0;
+      }
+      }
+      function toDEC(num){
+      var list=String(num).split("");
+      for(i=0;i<list.length;i++){
+        if(list[i]=="a"){
+          list[i]=10;
+          }
+          else if(list[i]=="b"){
+          list[i]=11;
+          }
+          else if(list[i]=="c"){
+          list[i]=12;
+          }
+          else if(list[i]=="d"){
+          list[i]=13;
+          }
+          else if(list[i]=="e"){
+          list[i]=14;
+          }
+          else if(list[i]=="f"){
+          list[i]=15;
+          }
+          else{
+          list[i]=Number(list[i]);
+          }
+        }
+      }
+document.getElementById("image").onmousemove=(event)=>{
+    var pageX=document.getElementById("image").offsetLeft;
+    var pageY=document.getElementById("image").offsetTop;
+    var offsetX=event.clientX;
+    var offsetY=event.clientY;
+    var mouseX=offsetX-pageX;
+    var mouseY=offsetY-pageY;
+    console.log(mouseX+","+mouseY);
+    var canvas=document.getElementById("image");
+    let ctx=canvas.getContext("2d");
+    var imgData=ctx.getImageData(0,0,canvas.width,canvas.height)
+    console.log("rgb("+imgData.data[pixel]+","+imgData.data[pixel+1]+imgData.data[pixel+2]+')'+pixel);
+    if(mouseY==0){
+        var pixel= Number(mouseX)*4;
+        document.getElementById("color").style.backgroundColor="rgb("+imgData.data[pixel]+","+imgData.data[pixel+1]+imgData.data[pixel+2]+')';
+        let pixelColor=[toHex(imgData.data[pixel]),toHex(imgData.data[pixel+1]),toHex(imgData.data[pixel+2])];
+        pixelColor=pixelColor[0]+pixelColor[1]+pixelColor[2];
+        pixelColor=toDEC(pixelColor);
+        pixelColor=toHex(pixelColor);
+         document.getElementById("hex").innerHTML="#"+pixelColor;
+    }else{
+        var pixel= (((Number(mouseY)-1)*Number(canvas.width))+Number(mouseX))*4;
+        document.getElementById("color").style.backgroundColor="rgb("+imgData.data[pixel]+","+imgData.data[pixel+1]+imgData.data[pixel+2]+')';
+        let pixelColor=[toHex(imgData.data[pixel]),toHex(imgData.data[pixel+1]),toHex(imgData.data[pixel+2])];
+        pixelColor=pixelColor[0]+pixelColor[1]+pixelColor[2];
+        pixelColor=toDEC(pixelColor);
+        pixelColor=toHex(pixelColor);
+        document.getElementById("hex").innerHTML="#"+pixelColor;
+    }
+} 
+</script>
+</body>
+</html>
